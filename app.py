@@ -19,13 +19,24 @@ def survey_home():
 @app.route('/questions/<count>')
 def question_pages(count):
     """Question pages"""
-    question = satisfaction_survey.questions[int(count)]
-    return render_template('questions.html', question=question.question, answers=question.choices, count=count)
+    if len(responses) != int(count):
+        return redirect(f'/questions/{len(responses)}')
+    if int(count) < len(satisfaction_survey.questions):
+        question = satisfaction_survey.questions[int(count)]
+        return render_template('questions.html', question=question.question, answers=question.choices, count=count)
+    return redirect('/thanks')
 
 
 @app.route('/answer', methods=['POST'])
 def answer_question():
     """Take answer, append to responses, and up count"""
+    global count
+    count += 1
     answer = request.form['answer']
     responses.append(answer)
-    return redirect('/')
+    return redirect(f'/questions/{count}')
+
+
+@app.route('/thanks')
+def thank_you_page():
+    return render_template('thanks.html')
